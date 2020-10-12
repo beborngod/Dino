@@ -4,6 +4,6 @@ WORKDIR /opt
 
 RUN pip install pygame
 
-COPY ../Dino
+COPY . ./Dino
 
 CMD ["python", "./main.py"]
