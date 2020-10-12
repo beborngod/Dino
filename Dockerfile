@@ -2,8 +2,8 @@ FROM python:3.8-buster
 
 WORKDIR /opt
 
-RUN pip install pygame
+RUN dnf install python3-pygame
 
 COPY . ./Dino
 
-CMD ["python", "./main.py"]
+CMD ["python", "./opt/Dino/main.py"]
