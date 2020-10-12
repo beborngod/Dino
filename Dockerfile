@@ -10,4 +10,4 @@ RUN apt-get autoremove
 
 COPY . ./Dino
 
-CMD ["python", "./main.py"]
+CMD ["python", "main.py"]
