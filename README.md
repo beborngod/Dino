@@ -4,11 +4,11 @@
 
 For installing on DEBIAN based distributive:
 
-    sudo apt install python3-pagame
+    sudo apt install python3-pygame
 
 For installing on REDHAT based distributive:
 
-    sudo dnf install python3-pagame
+    sudo dnf install python3-pygame
 
 And run
 
