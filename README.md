@@ -1,5 +1,6 @@
 # Dino game
-For this game you have to install depend pacages.
+
+# For this game you have to install depend pacages.
 
 For installing on DEBIAN based distributive:
 
