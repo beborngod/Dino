@@ -56,6 +56,7 @@ class Dino:
 
     __health_images = pygame.image.load('Effects/heart.png')
     __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
+    __new_heart_song = pygame.mixer.Sound('Sounds/hp+.wav')
 
     __health_images = pygame.transform.scale(__health_images, (30, 30))
 
@@ -69,7 +70,7 @@ class Dino:
 
     __max_above_cactus_counter = 0
 
-    __health = 4
+    __health = 1
 
     def getDisplayWidth(self):
         return self.__DISPLAY_WIDHT
@@ -136,13 +137,17 @@ class Dino:
     def main(self):
         pygame.mixer.music.play(-1)
 
-        self.__game = True
-        self.__cactuses = []
-        self.createCactus(self.__cactuses)
+        self.game = True
+        self.cactuses = []
+        self.createCactus(self.cactuses)
 
-        self.__stone, self.__cloud = self.openRandomObject(
-            self.__stone_image, self.__cloud_image)
-        while self.__game:
+        self.stone, self.cloud = self.openRandomObject(
+            self.__stone_image, self.__cloud_image
+            )
+
+        self.heart = ImageObject(self.__display ,self.__DISPLAY_WIDHT,270,30,self.__health_images,5)
+
+        while self.game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -155,24 +160,27 @@ class Dino:
             if self.__made_jump:
                 self.jump()
 
-            if keys[pygame.K_ESCAPE]:
-                self.pause()
-
-            self.countScores(self.__cactuses)
+            self.countScores(self.cactuses)
             self.__display.blit(self.__land, (0, 0))
 
             self.printText('Scores '+str(self.__scores), 600, 10)
 
-            self.drawCactus(self.__cactuses)
-            self.moveImageObjects(self.__stone, self.__cloud)
-
+            self.drawCactus(self.cactuses)
+            self.moveImageObjects(self.stone, self.cloud)
+            
             self.drawDino()
 
-            if self.checkCollision(self.__cactuses):
+            if keys[pygame.K_ESCAPE]:
+                self.pause()
+
+            self.heart.move(self.__DISPLAY_WIDHT)
+            self.heartPlus(self.heart)
+
+            if self.checkCollision(self.cactuses):
                 # pygame.mixer.Sound.play(self.__fall_sound)
                 #if not self.checkHealth():
-                self.__game = False
-
+                self.game = False
+            
             self.showHealth()
 
             pygame.display.update()
@@ -434,11 +442,27 @@ class Dino:
             self.__made_jump = False
             self.__jump_counter = 30
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
-            self.__health = 4
+            self.__health = 1
         pygame.quit()
         quit()
 
+    def heartPlus(self, heart):
+        if heart.x <= -heart.width:
+            radius = self.__DISPLAY_WIDHT+randrange(2000,5000)
+            heart_y_coord = heart.y+randrange(-15,40)
+            heart.returnImageObject(radius, heart_y_coord,heart.width,heart.image)
+
+        if self.__USER_X<=heart.x<=self.__USER_X+self.__USER_WIDTH:
+            if  self.__USER_Y<= heart.y <= self.__USER_Y+self.__USER_HEIGHT:
+                pygame.mixer.Sound.play(self.__new_heart_song)
+                if self.__health<5:
+                    self.__health+=1
+                
+                radius = self.__DISPLAY_WIDHT+randrange(2000,5000)
+                heart_y_coord = heart.y+randrange(-15,40)
+                heart.returnImageObject(radius, heart_y_coord,heart.width,heart.image)
 
 if __name__ == '__main__':
     game = Dino()
-    game.start()
+    game.start()           
+        
