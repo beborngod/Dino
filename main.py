@@ -1,5 +1,7 @@
 from random import randrange
 import pygame
+from pygame import display
+from pygame.image import load
 
 from ImageObgect import ImageObject
 
@@ -34,6 +36,11 @@ class Dino:
     __icon = pygame.image.load('icon.png')
     pygame.display.set_icon(__icon)
 
+    pygame.mixer.music.load('background.ogg')
+    pygame.mixer.music.set_volume(30)
+
+    __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
+
     __land = pygame.image.load(r'Land.jpg')
 
     __cactus_image = [pygame.image.load(
@@ -47,6 +54,11 @@ class Dino:
 
     __dino_image = [pygame.image.load(f'images/Dino{x}.png') for x in range(5)]
 
+    __health_images = pygame.image.load('Effects/heart.png')
+    __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
+
+    __health_images = pygame.transform.scale(__health_images, (30, 30))
+
     __cactus_opions = [[69, 449], [73, 410], [40, 420]]
 
     __image_dinos_counter = 0
@@ -56,6 +68,8 @@ class Dino:
     __max_scores = 0
 
     __max_above_cactus_counter = 0
+
+    __health = 4
 
     def getDisplayWidth(self):
         return self.__DISPLAY_WIDHT
@@ -120,6 +134,8 @@ class Dino:
         del self.__stone_image[index]
 
     def main(self):
+        pygame.mixer.music.play(-1)
+
         self.__game = True
         self.__cactuses = []
         self.createCactus(self.__cactuses)
@@ -153,7 +169,11 @@ class Dino:
             self.drawDino()
 
             if self.checkCollision(self.__cactuses):
+                # pygame.mixer.Sound.play(self.__fall_sound)
+                #if not self.checkHealth():
                 self.__game = False
+
+            self.showHealth()
 
             pygame.display.update()
             self.__clock.tick(60)
@@ -172,20 +192,19 @@ class Dino:
         above_cactus = 0
         if -20 <= self.__jump_counter < 25:
             for barrier in barriers:
-                #if self.__USER_Y+self.__USER_HEIGHT-5 <= barrier.y:
+                # if self.__USER_Y+self.__USER_HEIGHT-5 <= barrier.y:
                 if barrier.x <= self.__USER_X <= barrier.x+barrier.width:
                     above_cactus += 1
                 elif barrier.x <= self.__USER_X + self.__USER_WIDTH <= barrier.x+barrier.width:
                     above_cactus += 1
-    
+
             self.__max_above_cactus_counter = max(
                 self.__max_above_cactus_counter, above_cactus
-                )
+            )
         else:
             if self.__jump_counter == -30:
                 self.__scores += self.__max_above_cactus_counter
                 self.__max_above_cactus_counter = 0
-
 
     def __makingCactus(self, arr: list, plus_width: int):
         choice = randrange(0, 3)
@@ -275,6 +294,8 @@ class Dino:
 
     def pause(self):
         paused = True
+
+        pygame.mixer.music.pause()
         while paused:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -290,37 +311,99 @@ class Dino:
             pygame.display.update()
             self.__clock.tick(15)
 
+        pygame.mixer.music.unpause()
+
+    def showHealth(self):
+        show = 0
+        heart_x = 20
+        while show != self.__health:
+            self.__display.blit(self.__health_images, (heart_x, 20))
+            heart_x += 40
+            show += 1
+
+    def checkHealth(self):
+        self.__health -= 1
+        if self.__health == 0:
+            pygame.mixer.Sound.play(self.__crash_song)
+            return False
+        else:
+            pygame.mixer.Sound.play(self.__fall_sound)
+            return True
+
+    def __returnObjects(self, arrray, obj):
+        radius = self.findRadius(arrray)
+
+        choice = randrange(0, 3)
+        image = self.__cactus_image[choice]
+        width = self.__cactus_opions[choice][0]
+        height = self.__cactus_opions[choice][1]
+
+        obj.returnImageObject(radius, height, width, image)
+
     def checkCollision(self, barriers: list):
         for barrier in barriers:
             if barrier.y == 449:  # litle cactus
                 if not self.__made_jump:  # if Dino not jumping cpllosion
                     if barrier.x <= self.__USER_X+self.__USER_WIDTH-25 <= barrier.x+barrier.width:
-                        return True
+                        if self.checkHealth():
+                            self.__returnObjects(barriers, barrier)
+                            return False
+                        else:
+                            return True
                 elif self.__jump_counter >= 0:  # collision in up
                     if self.__USER_Y+self.__USER_HEIGHT-5 >= barrier.y:
                         if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
-                            return True
+                            if self.checkHealth():
+                                self.__returnObjects(barriers, barrier)
+                                return False
+                            else:
+                                return True
                 else:  # collision in down
                     if self.__USER_Y+self.__USER_HEIGHT-5 >= barrier.y:
                         if barrier.x <= self.__USER_X <= barrier.x+barrier.width:
-                            return True
+                            if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
+                                if self.checkHealth():
+                                    self.__returnObjects(barriers, barrier)
+                                    return False
+                                else:
+                                    return True
 
             else:  # a big cactus
                 if not self.__made_jump:  # if Dino not jumping cpllosion
                     if barrier.x <= self.__USER_X+self.__USER_WIDTH-5 <= barrier.x+barrier.width:
-                        return True
+                        if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
+                            if self.checkHealth():
+                                self.__returnObjects(barriers, barrier)
+                                return False
+                            else:
+                                return True
                 elif self.__made_jump == 10:  # collision in start jump
                     if self.__USER_Y+self.__USER_HEIGHT-5 >= barrier.y:
                         if barrier.x <= self.__USER_X+self.__USER_WIDTH-5 <= barrier.x+barrier.width:
-                            return True
+                            if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
+                                if self.checkHealth():
+                                    self.__returnObjects(barriers, barrier)
+                                    return False
+                                else:
+                                    return True
                 elif self.__jump_counter <= -1:  # collision in down jump
                     if self.__USER_Y+self.__USER_HEIGHT-15 >= barrier.y:
                         if barrier.x <= self.__USER_X+self.__USER_WIDTH <= barrier.x+barrier.width:
-                            return True
-                    else:
-                        if self.__USER_Y+self.__USER_HEIGHT-10 >= barrier.y:
-                            if barrier.x <= self.__USER_X+5 <= barrier.x+barrier.width:
-                                return True
+                            if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
+                                if self.checkHealth():
+                                    self.__returnObjects(barriers, barrier)
+                                    return False
+                                else:
+                                    return True
+                else:
+                    if self.__USER_Y+self.__USER_HEIGHT-10 >= barrier.y:
+                        if barrier.x <= self.__USER_X <= barrier.x+barrier.width:
+                            if barrier.x <= self.__USER_X+self.__USER_WIDTH-35 <= barrier.x+barrier.width:
+                                if self.checkHealth():
+                                    self.__returnObjects(barriers, barrier)
+                                    return False
+                                else:
+                                    return True
         return False
 
     def gameOver(self):
@@ -351,6 +434,7 @@ class Dino:
             self.__made_jump = False
             self.__jump_counter = 30
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
+            self.__health = 4
         pygame.quit()
         quit()
 
