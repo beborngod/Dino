@@ -1,7 +1,7 @@
+#!/usr/bin/python3.8
+
 from random import randrange
 import pygame
-from pygame import display
-from pygame.image import load
 
 from ImageObgect import ImageObject
 
@@ -143,9 +143,10 @@ class Dino:
 
         self.stone, self.cloud = self.openRandomObject(
             self.__stone_image, self.__cloud_image
-            )
+        )
 
-        self.heart = ImageObject(self.__display ,self.__DISPLAY_WIDHT,270,30,self.__health_images,5)
+        self.heart = ImageObject(
+            self.__display, self.__DISPLAY_WIDHT, 270, 30, self.__health_images, 5)
 
         while self.game:
             for event in pygame.event.get():
@@ -167,7 +168,7 @@ class Dino:
 
             self.drawCactus(self.cactuses)
             self.moveImageObjects(self.stone, self.cloud)
-            
+
             self.drawDino()
 
             if keys[pygame.K_ESCAPE]:
@@ -178,9 +179,9 @@ class Dino:
 
             if self.checkCollision(self.cactuses):
                 # pygame.mixer.Sound.play(self.__fall_sound)
-                #if not self.checkHealth():
+                # if not self.checkHealth():
                 self.game = False
-            
+
             self.showHealth()
 
             pygame.display.update()
@@ -448,21 +449,23 @@ class Dino:
 
     def heartPlus(self, heart):
         if heart.x <= -heart.width:
-            radius = self.__DISPLAY_WIDHT+randrange(2000,5000)
-            heart_y_coord = heart.y+randrange(-15,40)
-            heart.returnImageObject(radius, heart_y_coord,heart.width,heart.image)
+            radius = self.__DISPLAY_WIDHT+randrange(2000, 5000)
+            heart_y_coord = heart.y+randrange(-15, 40)
+            heart.returnImageObject(
+                radius, heart_y_coord, heart.width, heart.image)
 
-        if self.__USER_X<=heart.x<=self.__USER_X+self.__USER_WIDTH:
-            if  self.__USER_Y<= heart.y <= self.__USER_Y+self.__USER_HEIGHT:
+        if self.__USER_X <= heart.x <= self.__USER_X+self.__USER_WIDTH:
+            if self.__USER_Y <= heart.y <= self.__USER_Y+self.__USER_HEIGHT:
                 pygame.mixer.Sound.play(self.__new_heart_song)
-                if self.__health<5:
-                    self.__health+=1
-                
-                radius = self.__DISPLAY_WIDHT+randrange(2000,5000)
-                heart_y_coord = heart.y+randrange(-15,40)
-                heart.returnImageObject(radius, heart_y_coord,heart.width,heart.image)
+                if self.__health < 5:
+                    self.__health += 1
+
+                radius = self.__DISPLAY_WIDHT+randrange(2000, 5000)
+                heart_y_coord = heart.y+randrange(-15, 10)
+                heart.returnImageObject(
+                    radius, heart_y_coord, heart.width, heart.image)
+
 
 if __name__ == '__main__':
     game = Dino()
-    game.start()           
-        
+    game.start()
