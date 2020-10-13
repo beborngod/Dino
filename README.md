@@ -1,12 +1,13 @@
-#Dino game
+# Dino game
 
-*for installing on Debian based distributive:
+For installing on DEBIAN based distributive:
 
     sudo apt install python3-pagame
 
-*for installing on RedHat based distributive:
+For installing on REDHAT based distributive:
 
     sudo dnf install python3-pagame
 
-and run:
+And run
+
     python3 main.py
