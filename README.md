@@ -12,4 +12,4 @@ For installing on REDHAT based distributive:
 
 And run inside directory Dino game:
 
-    python3 main.py
+    python3 dinogame.py
