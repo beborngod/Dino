@@ -9,7 +9,7 @@ class GameButton:
         self.inactive_color = inactive_color
         self.active_color = active_color
 
-    def __printText(self, message, x, y, font_color=(0, 0, 0), font_type='font.ttf', font_size=30):
+    def __printText(self, message, x, y, font_color=(0, 0, 0), font_type='Effects/font.ttf', font_size=30):
         font_type = pygame.font.Font(font_type, font_size)
         text = font_type.render(message, True, font_color)
         self.display.blit(text, (x, y))
