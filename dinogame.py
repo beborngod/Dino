@@ -37,8 +37,7 @@ class Dino:
     __icon = pygame.image.load('Backgrounds/icon.png')
     pygame.display.set_icon(__icon)
 
-    pygame.mixer.music.load('Sounds/background.ogg')
-    pygame.mixer.music.set_volume(30)
+    
 
     __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
 
@@ -54,6 +53,7 @@ class Dino:
         f'images/Cloud{x}.png') for x in range(2)]
 
     __dino_image = [pygame.image.load(f'images/Dino{x}.png') for x in range(5)]
+    __dark_dino_image = [pygame.image.load(f'images/darkDino{x}.png') for x in range(5)]
 
     __health_images = pygame.image.load('Effects/heart.png')
     __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
@@ -139,13 +139,20 @@ class Dino:
         del self.__stone_image[index]
 
     def gameMenu(self):
+        pygame.mixer.music.load('Sounds/Big_Slinker.ogg')
+        pygame.mixer.music.set_volume(30)
+        pygame.mixer.music.play(-1)
+
         actice_color = (23,254,56)
         inactive_color = (123,254,56)
+
         menu_background = pygame.image.load('Backgrounds/Menu.jpg')
         show = True
         
         start_button = GameButton(self.__display, 150,70,actice_color,inactive_color)
         quit_button = GameButton(self.__display, 120,70,actice_color,inactive_color)
+        change_personage_button = GameButton(self.__display, 240,70,actice_color,inactive_color)
+
         while show:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -153,12 +160,51 @@ class Dino:
                     quit()
             
             self.__display.blit(menu_background, (0,0))
+
             start_button.drawButton(320,200,'Start',self.__startGame,self.__button_sound,50)
-            quit_button.drawButton(335,300,'Quit',quit,self.__button_sound,50)
+            change_personage_button.drawButton(270,300,'Character',self.changeCharacter,self.__button_sound,50)
+            quit_button.drawButton(335,400,'Quit',quit,self.__button_sound,50)
+
+            pygame.display.update()
+            self.__clock.tick(60)
+        
+    def changeCharacter(self):
+        actice_color = (23,254,56)
+        inactive_color = (123,254,56)
+
+        menu_background = pygame.image.load('Backgrounds/Menu.jpg')
+        show = True
+
+        simple_dino_images = pygame.image.load('images/Dino0.png')
+        simple_personage_button = GameButton(self.__display, 190,70,actice_color,inactive_color)
+        dark_dino_images = pygame.image.load('images/darkDino0.png')
+        dark_personage_button = GameButton(self.__display, 150,70,actice_color,inactive_color)
+
+        while show:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+            self.__display.blit(menu_background, (0,0))
+
+            self.__display.blit(simple_dino_images, (290,290))
+            self.__display.blit(dark_dino_images, (470,290))
+
+            simple_personage_button.drawButton(240,400,'Simple ',self.gameMenu,self.__button_sound,50)
+                
+            dark_personage_button.drawButton(420,400,' Dark',self.gameMenu,self.__button_sound,50)
+            
+            
+
             pygame.display.update()
             self.__clock.tick(60)
 
+
     def __startGame(self):
+        pygame.mixer.music.load('Sounds/background.ogg')
+        pygame.mixer.music.set_volume(30)
+        pygame.mixer.music.play(-1)
         while self.main():
             self.__scores = 0
             self.__made_jump = False
@@ -166,9 +212,7 @@ class Dino:
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
             self.__health = 1
 
-
     def main(self):
-        pygame.mixer.music.play(-1)
 
         self.game = True
         self.cactuses = []
@@ -193,7 +237,7 @@ class Dino:
 
             if self.__made_jump:
                 self.jump()
-
+            
             self.countScores(self.cactuses)
             self.__display.blit(self.__land, (0, 0))
 
@@ -500,5 +544,4 @@ class Dino:
 
 if __name__ == '__main__':
     game = Dino()
-    
     game.start()
