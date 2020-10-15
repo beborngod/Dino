@@ -1,6 +1,6 @@
 # Dino game
 
-# For this game you have to install dependent pacages.
+# For this game you have to install dependent packages.
 
 For installing on DEBIAN based distributive:
 
@@ -10,6 +10,6 @@ For installing on REDHAT based distributive:
 
     sudo dnf install python3-pygame
 
-And run
+And run inside directory Dino game:
 
     python3 main.py
