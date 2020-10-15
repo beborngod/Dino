@@ -34,15 +34,15 @@ class Dino:
     __display = pygame.display.set_mode((__DISPLAY_WIDHT, __DISPLAY_HEIGHT))
     pygame.display.set_caption('Dino gonna run!')
 
-    __icon = pygame.image.load('icon.png')
+    __icon = pygame.image.load('Backgrounds/icon.png')
     pygame.display.set_icon(__icon)
 
-    pygame.mixer.music.load('background.ogg')
+    pygame.mixer.music.load('Sounds/background.ogg')
     pygame.mixer.music.set_volume(30)
 
     __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
 
-    __land = pygame.image.load(r'Land.jpg')
+    __land = pygame.image.load(r'Backgrounds/Land.jpg')
 
     __cactus_image = [pygame.image.load(
         f'images/Cactus{x}.png') for x in range(3)]
@@ -211,8 +211,6 @@ class Dino:
             self.heartPlus(self.heart)
 
             if self.checkCollision(self.cactuses):
-                # pygame.mixer.Sound.play(self.__fall_sound)
-                # if not self.checkHealth():
                 self.game = False
 
             self.showHealth()
@@ -329,7 +327,7 @@ class Dino:
             self.__dino_image[self.__image_dinos_counter//4], (self.__USER_X, self.__USER_Y))
         self.__image_dinos_counter += 1
 
-    def printText(self, message, x, y, font_color=(0, 0, 0), font_type='font.ttf', font_size=30):
+    def printText(self, message, x, y, font_color=(0, 0, 0), font_type='Effects/font.ttf', font_size=30):
         font_type = pygame.font.Font(font_type, font_size)
         text = font_type.render(message, True, font_color)
         self.__display.blit(text, (x, y))
