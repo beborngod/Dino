@@ -81,6 +81,8 @@ class Dino:
     __bullet_image = pygame.image.load('Effects/shot.png')
     __bullet_image = pygame.transform.scale(__bullet_image, (30, 9))
 
+    __cooldown = 0
+
     def getDisplayWidth(self):
         return self.__DISPLAY_WIDHT
 
@@ -232,8 +234,9 @@ class Dino:
             self.__jump_counter = 30
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
             self.__health = 1
+            self.__cooldown = 0
 
-    def main(self):
+    def main(self): #------------------------------------------------------------
         pygame.mixer.music.load('Sounds/background.ogg')
         pygame.mixer.music.set_volume(30)
         pygame.mixer.music.play(-1)
@@ -273,9 +276,14 @@ class Dino:
             self.moveImageObjects(self.stone, self.cloud)
 
             self.drawDino()
-
-            if keys[pygame.K_x]:
-                all_button_bullets.append(GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
+            
+            if not self.__cooldown:
+                if keys[pygame.K_x]:
+                    pygame.mixer.Sound.play(self.__bullet_sound)
+                    all_button_bullets.append(GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
+                    self.__cooldown = 50
+            else:
+                self.__cooldown-=1
 
             for bullet in all_button_bullets:
                 if not bullet.bulletMove(self.__DISPLAY_WIDHT,self.__bullet_image):
