@@ -5,6 +5,7 @@ import pygame
 
 from ImageObgect import ImageObject
 from GameButton import GameButton
+from GameBullet import GameBullet
 
 
 pygame.init()
@@ -74,8 +75,11 @@ class Dino:
 
     __button_sound = pygame.mixer.Sound('Sounds/button.wav')
 
-    __characters = [__dino_image, __dark_dino_image]
     __switch_character = True
+
+    __bullet_sound = pygame.mixer.Sound('Sounds/shot.wav')
+    __bullet_image = pygame.image.load('Effects/shot.png')
+    __bullet_image = pygame.transform.scale(__bullet_image, (30, 9))
 
     def getDisplayWidth(self):
         return self.__DISPLAY_WIDHT
@@ -163,6 +167,7 @@ class Dino:
                     pygame.quit()
                     quit()
 
+            
             self.__display.blit(menu_background, (0, 0))
 
             start_button.drawButton(
@@ -174,6 +179,7 @@ class Dino:
 
             pygame.display.update()
             self.__clock.tick(60)
+        
 
     def changeCharacter(self):
         actice_color = (23, 254, 56)
@@ -219,10 +225,7 @@ class Dino:
         self.gameMenu()
         return self.__switch_character
 
-    def __startGame(self):
-        pygame.mixer.music.load('Sounds/background.ogg')
-        pygame.mixer.music.set_volume(30)
-        pygame.mixer.music.play(-1)
+    def __startGame(self):  # start game for game menu
         while self.main():
             self.__scores = 0
             self.__made_jump = False
@@ -231,6 +234,9 @@ class Dino:
             self.__health = 1
 
     def main(self):
+        pygame.mixer.music.load('Sounds/background.ogg')
+        pygame.mixer.music.set_volume(30)
+        pygame.mixer.music.play(-1)
 
         self.game = True
         self.cactuses = []
@@ -242,6 +248,8 @@ class Dino:
 
         self.heart = ImageObject(
             self.__display, self.__DISPLAY_WIDHT, 270, 30, self.__health_images, 5)
+
+        all_button_bullets = []
 
         while self.game:
             for event in pygame.event.get():
@@ -266,6 +274,13 @@ class Dino:
 
             self.drawDino()
 
+            if keys[pygame.K_x]:
+                all_button_bullets.append(GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
+
+            for bullet in all_button_bullets:
+                if not bullet.bulletMove(self.__DISPLAY_WIDHT,self.__bullet_image):
+                    all_button_bullets.remove(bullet)
+
             if keys[pygame.K_ESCAPE]:
                 self.pause()
 
@@ -273,7 +288,11 @@ class Dino:
             self.heartPlus(self.heart)
 
             if self.checkCollision(self.cactuses):
+                pygame.mixer.music.pause()
                 self.game = False
+                pygame.mixer.music.load('Sounds/Big_Slinker.ogg')
+                pygame.mixer.music.set_volume(30)
+                pygame.mixer.music.play(-1)
 
             self.showHealth()
 
