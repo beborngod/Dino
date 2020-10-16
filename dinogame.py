@@ -37,8 +37,6 @@ class Dino:
     __icon = pygame.image.load('Backgrounds/icon.png')
     pygame.display.set_icon(__icon)
 
-    
-
     __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
 
     __land = pygame.image.load(r'Backgrounds/Land.jpg')
@@ -53,7 +51,8 @@ class Dino:
         f'images/Cloud{x}.png') for x in range(2)]
 
     __dino_image = [pygame.image.load(f'images/Dino{x}.png') for x in range(5)]
-    __dark_dino_image = [pygame.image.load(f'images/darkDino{x}.png') for x in range(5)]
+    __dark_dino_image = [pygame.image.load(
+        f'images/darkDino{x}.png') for x in range(5)]
 
     __health_images = pygame.image.load('Effects/heart.png')
     __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
@@ -75,6 +74,8 @@ class Dino:
 
     __button_sound = pygame.mixer.Sound('Sounds/button.wav')
 
+    __characters = [__dino_image, __dark_dino_image]
+    __switch_character = True
 
     def getDisplayWidth(self):
         return self.__DISPLAY_WIDHT
@@ -143,42 +144,50 @@ class Dino:
         pygame.mixer.music.set_volume(30)
         pygame.mixer.music.play(-1)
 
-        actice_color = (23,254,56)
-        inactive_color = (123,254,56)
+        actice_color = (23, 254, 56)
+        inactive_color = (123, 254, 56)
 
         menu_background = pygame.image.load('Backgrounds/Menu.jpg')
         show = True
-        
-        start_button = GameButton(self.__display, 150,70,actice_color,inactive_color)
-        quit_button = GameButton(self.__display, 120,70,actice_color,inactive_color)
-        change_personage_button = GameButton(self.__display, 240,70,actice_color,inactive_color)
+
+        start_button = GameButton(
+            self.__display, 150, 70, actice_color, inactive_color)
+        quit_button = GameButton(
+            self.__display, 120, 70, actice_color, inactive_color)
+        change_personage_button = GameButton(
+            self.__display, 240, 70, actice_color, inactive_color)
 
         while show:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
-            
-            self.__display.blit(menu_background, (0,0))
 
-            start_button.drawButton(320,200,'Start',self.__startGame,self.__button_sound,50)
-            change_personage_button.drawButton(270,300,'Character',self.changeCharacter,self.__button_sound,50)
-            quit_button.drawButton(335,400,'Quit',quit,self.__button_sound,50)
+            self.__display.blit(menu_background, (0, 0))
+
+            start_button.drawButton(
+                320, 200, 'Start', self.__startGame, self.__button_sound, 50)
+            change_personage_button.drawButton(
+                270, 300, 'Character', self.changeCharacter, self.__button_sound, 50)
+            quit_button.drawButton(
+                335, 400, 'Quit', quit, self.__button_sound, 50)
 
             pygame.display.update()
             self.__clock.tick(60)
-        
+
     def changeCharacter(self):
-        actice_color = (23,254,56)
-        inactive_color = (123,254,56)
+        actice_color = (23, 254, 56)
+        inactive_color = (123, 254, 56)
 
         menu_background = pygame.image.load('Backgrounds/Menu.jpg')
         show = True
 
         simple_dino_images = pygame.image.load('images/Dino0.png')
-        simple_personage_button = GameButton(self.__display, 190,70,actice_color,inactive_color)
+        simple_personage_button = GameButton(
+            self.__display, 190, 70, actice_color, inactive_color)
         dark_dino_images = pygame.image.load('images/darkDino0.png')
-        dark_personage_button = GameButton(self.__display, 150,70,actice_color,inactive_color)
+        dark_personage_button = GameButton(
+            self.__display, 150, 70, actice_color, inactive_color)
 
         while show:
             for event in pygame.event.get():
@@ -186,20 +195,29 @@ class Dino:
                     pygame.quit()
                     quit()
 
-            self.__display.blit(menu_background, (0,0))
+            self.__display.blit(menu_background, (0, 0))
 
-            self.__display.blit(simple_dino_images, (290,290))
-            self.__display.blit(dark_dino_images, (470,290))
+            self.__display.blit(simple_dino_images, (290, 290))
+            self.__display.blit(dark_dino_images, (470, 290))
 
-            simple_personage_button.drawButton(240,400,'Simple ',self.gameMenu,self.__button_sound,50)
-                
-            dark_personage_button.drawButton(420,400,' Dark',self.gameMenu,self.__button_sound,50)
-            
-            
+            simple_personage_button.drawButton(
+                240, 400, 'Simple ', self.simpleDino, self.__button_sound, 50)
+
+            dark_personage_button.drawButton(
+                420, 400, ' Dark', self.darkDino, self.__button_sound, 50)
 
             pygame.display.update()
             self.__clock.tick(60)
 
+    def simpleDino(self):
+        self.__switch_character = True
+        self.gameMenu()
+        return self.__switch_character
+
+    def darkDino(self):
+        self.__switch_character = False
+        self.gameMenu()
+        return self.__switch_character
 
     def __startGame(self):
         pygame.mixer.music.load('Sounds/background.ogg')
@@ -237,7 +255,7 @@ class Dino:
 
             if self.__made_jump:
                 self.jump()
-            
+
             self.countScores(self.cactuses)
             self.__display.blit(self.__land, (0, 0))
 
@@ -258,7 +276,7 @@ class Dino:
                 self.game = False
 
             self.showHealth()
-            
+
             pygame.display.update()
             self.__clock.tick(60)
 
@@ -348,7 +366,7 @@ class Dino:
 
         return stone, cloud
 
-    def moveImageObjects(self, stone, cloud):
+    def moveImageObjects(self, stone, cloud):  # drawing stones and clouds
         check = stone.move(self.__DISPLAY_WIDHT)
         if not check:
             choice = randrange(0, 2)
@@ -366,10 +384,16 @@ class Dino:
     def drawDino(self):
         if self.__image_dinos_counter == 20:
             self.__image_dinos_counter = 0
-
-        self.__display.blit(
-            self.__dino_image[self.__image_dinos_counter//4], (self.__USER_X, self.__USER_Y))
-        self.__image_dinos_counter += 1
+        if self.__switch_character == True:
+            self.__display.blit(self.__dino_image[self.__image_dinos_counter//4],
+                                (self.__USER_X, self.__USER_Y)
+                                )
+            self.__image_dinos_counter += 1
+        if self.__switch_character == False:
+            self.__display.blit(self.__dark_dino_image[self.__image_dinos_counter//4],
+                                (self.__USER_X, self.__USER_Y)
+                                )
+            self.__image_dinos_counter += 1
 
     def printText(self, message, x, y, font_color=(0, 0, 0), font_type='Effects/font.ttf', font_size=30):
         font_type = pygame.font.Font(font_type, font_size)
