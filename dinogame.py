@@ -266,7 +266,7 @@ class Dino:
         all_button_bullets = []
         all_mouse_bullets = []
 
-        bird = GameBird(self.__display, -80, self.__bird_image)
+        all_birds = [GameBird(self.__display, -80, self.__bird_image) for x in range(2)]
 
         while self.game:
             for event in pygame.event.get():
@@ -293,14 +293,14 @@ class Dino:
             self.moveImageObjects(self.stone, self.cloud)
 
             self.drawDino()
-            if self.__rubys>0:
+            if self.__rubys > 0:
                 if not self.__cooldown:
                     if keys[pygame.K_x]:
                         pygame.mixer.Sound.play(self.__bullet_sound)
                         all_button_bullets.append(GameBullet(
                             self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
                         self.__cooldown = 50
-                        self.__rubys-=1
+                        self.__rubys -= 1
                     elif click[0]:
                         pygame.mixer.Sound.play(self.__bullet_sound)
                         add_bullet = GameBullet(
@@ -309,7 +309,7 @@ class Dino:
 
                         all_mouse_bullets.append(add_bullet)
                         self.__cooldown = 50
-                        self.__rubys-=1
+                        self.__rubys -= 1
                 else:
                     self.__cooldown -= 1
 
@@ -324,11 +324,11 @@ class Dino:
             if keys[pygame.K_ESCAPE]:
                 self.pause()
 
-            self.heart.move(self.__DISPLAY_WIDHT)
-            self.heartPlus(self.heart)
-
             self.ruby.move(self.__DISPLAY_WIDHT)
             self.rubyPlus(self.ruby)
+
+            self.heart.move(self.__DISPLAY_WIDHT)
+            self.heartPlus(self.heart)
 
             if self.checkCollision(self.cactuses):
                 pygame.mixer.music.pause()
@@ -337,15 +337,33 @@ class Dino:
                 pygame.mixer.music.set_volume(30)
                 pygame.mixer.music.play(-1)
 
-            bird.drawBird()
+            self.drawBird(all_birds)
+            self.checkBirdsDamage(all_mouse_bullets,all_birds)
+            self.checkBirdsDamage(all_button_bullets,all_birds)
 
-            self.showImageItem(20,20,self.__health_images,self.__health)
-            self.showImageItem(20,60,self.__ruby_images, self.__rubys)
+            self.showImageItem(20, 20, self.__health_images, self.__health)
+            self.showImageItem(20, 60, self.__ruby_images, self.__rubys)
 
             pygame.display.update()
             self.__clock.tick(60)
 
         return self.gameOver()
+
+    def drawBird(self, birds: list):
+        for bird in birds:
+            action = bird.draw()
+            if action == 1:
+                bird.comeBird()
+            elif action == 2:
+                bird.hide()
+
+    def checkBirdsDamage(self, bullets, birds):
+        for bird in birds:
+            for bullet in bullets:
+                if bird.checkDamage(bullet):
+                    self.__scores+=20
+                
+            
 
     def jump(self):
         if self.__jump_counter >= -30.0:
@@ -592,10 +610,11 @@ class Dino:
             self.__jump_counter = 30
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
             self.__health = 1
+            self.__rubys = 5
         pygame.quit()
         quit()
 
-    def showImageItem(self,x,y,image,item):
+    def showImageItem(self, x, y, image, item):
         show = 0
         while show != item:
             self.__display.blit(image, (x, y))
