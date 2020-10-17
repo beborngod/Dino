@@ -253,6 +253,7 @@ class Dino:
             self.__display, self.__DISPLAY_WIDHT, 270, 30, self.__health_images, 5)
 
         all_button_bullets = []
+        all_mouse_bullets = []
 
         while self.game:
             for event in pygame.event.get():
@@ -261,6 +262,9 @@ class Dino:
                     quit()
 
             keys = pygame.key.get_pressed()
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+
             if keys[pygame.K_SPACE]:
                 self.__made_jump = True
 
@@ -282,12 +286,23 @@ class Dino:
                     pygame.mixer.Sound.play(self.__bullet_sound)
                     all_button_bullets.append(GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
                     self.__cooldown = 50
+                elif click[0]:
+                    pygame.mixer.Sound.play(self.__bullet_sound)
+                    add_bullet = GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10)
+                    add_bullet.findPath(mouse[0],mouse[1])
+
+                    all_mouse_bullets.append(add_bullet)
+                    self.__cooldown = 50
             else:
                 self.__cooldown-=1
 
             for bullet in all_button_bullets:
                 if not bullet.bulletMove(self.__DISPLAY_WIDHT,self.__bullet_image):
                     all_button_bullets.remove(bullet)
+
+            for bullet in all_mouse_bullets:
+                if not bullet.moveTo(self.__bullet_image):
+                    all_mouse_bullets.remove(bullet)
 
             if keys[pygame.K_ESCAPE]:
                 self.pause()
