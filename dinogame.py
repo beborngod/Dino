@@ -38,8 +38,6 @@ class Dino:
     __icon = pygame.image.load('Backgrounds/icon.png')
     pygame.display.set_icon(__icon)
 
-    __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
-
     __land = pygame.image.load(r'Backgrounds/Land.jpg')
 
     __cactus_image = [pygame.image.load(
@@ -55,11 +53,18 @@ class Dino:
     __dark_dino_image = [pygame.image.load(
         f'images/darkDino{x}.png') for x in range(5)]
 
-    __health_images = pygame.image.load('Effects/heart.png')
     __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
     __new_heart_song = pygame.mixer.Sound('Sounds/hp+.wav')
+    __fall_sound = pygame.mixer.Sound('Sounds/Bdish.wav')
+    __bullet_sound = pygame.mixer.Sound('Sounds/shot.wav')
 
+    __health_images = pygame.image.load('Effects/heart.png')
     __health_images = pygame.transform.scale(__health_images, (30, 30))
+
+    __ruby_images = pygame.image.load('Effects/Ruby.png')
+    __ruby_images = pygame.transform.scale(__ruby_images, (30, 30))
+
+    __rubys = 5
 
     __cactus_opions = [[69, 449], [73, 410], [40, 420]]
 
@@ -77,7 +82,6 @@ class Dino:
 
     __switch_character = True
 
-    __bullet_sound = pygame.mixer.Sound('Sounds/shot.wav')
     __bullet_image = pygame.image.load('Effects/shot.png')
     __bullet_image = pygame.transform.scale(__bullet_image, (30, 9))
 
@@ -169,7 +173,6 @@ class Dino:
                     pygame.quit()
                     quit()
 
-            
             self.__display.blit(menu_background, (0, 0))
 
             start_button.drawButton(
@@ -181,7 +184,6 @@ class Dino:
 
             pygame.display.update()
             self.__clock.tick(60)
-        
 
     def changeCharacter(self):
         actice_color = (23, 254, 56)
@@ -236,7 +238,7 @@ class Dino:
             self.__health = 1
             self.__cooldown = 0
 
-    def main(self): #------------------------------------------------------------
+    def main(self):  # ------------------------------------------------------------
         pygame.mixer.music.load('Sounds/background.ogg')
         pygame.mixer.music.set_volume(30)
         pygame.mixer.music.play(-1)
@@ -251,6 +253,9 @@ class Dino:
 
         self.heart = ImageObject(
             self.__display, self.__DISPLAY_WIDHT, 270, 30, self.__health_images, 5)
+
+        self.ruby = ImageObject(
+            self.__display, self.__DISPLAY_WIDHT, 270, 30, self.__ruby_images, 5)
 
         all_button_bullets = []
         all_mouse_bullets = []
@@ -280,28 +285,32 @@ class Dino:
             self.moveImageObjects(self.stone, self.cloud)
 
             self.drawDino()
-            
-            if not self.__cooldown:
-                if keys[pygame.K_x]:
-                    pygame.mixer.Sound.play(self.__bullet_sound)
-                    all_button_bullets.append(GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
-                    self.__cooldown = 50
-                elif click[0]:
-                    pygame.mixer.Sound.play(self.__bullet_sound)
-                    add_bullet = GameBullet(self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10)
-                    add_bullet.findPath(mouse[0],mouse[1])
+            if self.__rubys>0:
+                if not self.__cooldown:
+                    if keys[pygame.K_x]:
+                        pygame.mixer.Sound.play(self.__bullet_sound)
+                        all_button_bullets.append(GameBullet(
+                            self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10))
+                        self.__cooldown = 50
+                        self.__rubys-=1
+                    elif click[0]:
+                        pygame.mixer.Sound.play(self.__bullet_sound)
+                        add_bullet = GameBullet(
+                            self.__display, self.__USER_X+self.__USER_WIDTH-10, self.__USER_Y+30, 10)
+                        add_bullet.findPath(mouse[0], mouse[1])
 
-                    all_mouse_bullets.append(add_bullet)
-                    self.__cooldown = 50
-            else:
-                self.__cooldown-=1
+                        all_mouse_bullets.append(add_bullet)
+                        self.__cooldown = 50
+                        self.__rubys-=1
+                else:
+                    self.__cooldown -= 1
 
             for bullet in all_button_bullets:
-                if not bullet.bulletMove(self.__DISPLAY_WIDHT,self.__bullet_image):
+                if not bullet.bulletMove(self.__DISPLAY_WIDHT, self.__bullet_image):
                     all_button_bullets.remove(bullet)
 
             for bullet in all_mouse_bullets:
-                if not bullet.moveTo(self.__bullet_image):
+                if not bullet.moveTo(self.__DISPLAY_WIDHT, self.__bullet_image):
                     all_mouse_bullets.remove(bullet)
 
             if keys[pygame.K_ESCAPE]:
@@ -310,6 +319,9 @@ class Dino:
             self.heart.move(self.__DISPLAY_WIDHT)
             self.heartPlus(self.heart)
 
+            self.ruby.move(self.__DISPLAY_WIDHT)
+            self.rubyPlus(self.ruby)
+
             if self.checkCollision(self.cactuses):
                 pygame.mixer.music.pause()
                 self.game = False
@@ -317,7 +329,8 @@ class Dino:
                 pygame.mixer.music.set_volume(30)
                 pygame.mixer.music.play(-1)
 
-            self.showHealth()
+            self.showImageItem(20,20,self.__health_images,self.__health)
+            self.showImageItem(20,60,self.__ruby_images, self.__rubys)
 
             pygame.display.update()
             self.__clock.tick(60)
@@ -463,23 +476,6 @@ class Dino:
 
         pygame.mixer.music.unpause()
 
-    def showHealth(self):
-        show = 0
-        heart_x = 20
-        while show != self.__health:
-            self.__display.blit(self.__health_images, (heart_x, 20))
-            heart_x += 40
-            show += 1
-
-    def checkHealth(self):
-        self.__health -= 1
-        if self.__health == 0:
-            pygame.mixer.Sound.play(self.__crash_song)
-            return False
-        else:
-            pygame.mixer.Sound.play(self.__fall_sound)
-            return True
-
     def __returnObjects(self, arrray, obj):
         radius = self.findRadius(arrray)
 
@@ -589,6 +585,22 @@ class Dino:
         pygame.quit()
         quit()
 
+    def showImageItem(self,x,y,image,item):
+        show = 0
+        while show != item:
+            self.__display.blit(image, (x, y))
+            x += 40
+            show += 1
+
+    def checkHealth(self):
+        self.__health -= 1
+        if self.__health == 0:
+            pygame.mixer.Sound.play(self.__crash_song)
+            return False
+        else:
+            pygame.mixer.Sound.play(self.__fall_sound)
+            return True
+
     def heartPlus(self, heart):
         if heart.x <= -heart.width:
             radius = self.__DISPLAY_WIDHT+randrange(2000, 5000)
@@ -606,6 +618,31 @@ class Dino:
                 heart_y_coord = heart.y+randrange(-15, 10)
                 heart.returnImageObject(
                     radius, heart_y_coord, heart.width, heart.image)
+
+    def checkRubys(self):
+        self.__rubys -= 1
+        if self.__rubys == 0:
+            return False
+        else:
+            return True
+
+    def rubyPlus(self, ruby):
+        if ruby.x <= -ruby.width:
+            radius = self.__DISPLAY_WIDHT+randrange(500, 1500)
+            ruby_y_coord = ruby.y+randrange(-15, 40)
+            ruby.returnImageObject(
+                radius, ruby_y_coord, ruby.width, ruby.image)
+
+        if self.__USER_X <= ruby.x <= self.__USER_X+self.__USER_WIDTH:
+            if self.__USER_Y <= ruby.y <= self.__USER_Y+self.__USER_HEIGHT:
+                pygame.mixer.Sound.play(self.__new_heart_song)
+                if self.__rubys < 10:
+                    self.__rubys += 1
+
+                radius = self.__DISPLAY_WIDHT+randrange(500, 1500)
+                ruby_y_coord = ruby.y+randrange(-15, 10)
+                ruby.returnImageObject(
+                    radius, ruby_y_coord, ruby.width, ruby.image)
 
 
 if __name__ == '__main__':
