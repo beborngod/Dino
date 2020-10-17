@@ -18,5 +18,6 @@ How to shot Bird?
 Press:
 
     x
+Or
 
     mouse [left button]     
