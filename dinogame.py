@@ -6,6 +6,7 @@ import pygame
 from ImageObgect import ImageObject
 from GameButton import GameButton
 from GameBullet import GameBullet
+from GameBird import GameBird
 
 
 pygame.init()
@@ -49,9 +50,13 @@ class Dino:
     __cloud_image = [pygame.image.load(
         f'images/Cloud{x}.png') for x in range(2)]
 
-    __dino_image = [pygame.image.load(f'images/Dino{x}.png') for x in range(5)]
+    __dino_image = [pygame.image.load(
+        f'images/Dino{x}.png') for x in range(5)]
     __dark_dino_image = [pygame.image.load(
         f'images/darkDino{x}.png') for x in range(5)]
+
+    __bird_image = [pygame.image.load(
+        f'Bird/Bird{x}.png') for x in range(6)]
 
     __crash_song = pygame.mixer.Sound('Sounds/loss.wav')
     __new_heart_song = pygame.mixer.Sound('Sounds/hp+.wav')
@@ -237,6 +242,7 @@ class Dino:
             self.__USER_Y = self.__DISPLAY_HEIGHT-self.__USER_HEIGHT-100
             self.__health = 1
             self.__cooldown = 0
+            self.__rubys = 5
 
     def main(self):  # ------------------------------------------------------------
         pygame.mixer.music.load('Sounds/background.ogg')
@@ -259,6 +265,8 @@ class Dino:
 
         all_button_bullets = []
         all_mouse_bullets = []
+
+        bird = GameBird(self.__display, -80, self.__bird_image)
 
         while self.game:
             for event in pygame.event.get():
@@ -328,6 +336,8 @@ class Dino:
                 pygame.mixer.music.load('Sounds/Big_Slinker.ogg')
                 pygame.mixer.music.set_volume(30)
                 pygame.mixer.music.play(-1)
+
+            bird.drawBird()
 
             self.showImageItem(20,20,self.__health_images,self.__health)
             self.showImageItem(20,60,self.__ruby_images, self.__rubys)
