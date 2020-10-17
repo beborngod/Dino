@@ -13,3 +13,12 @@ For installing on REDHAT based distributive:
 And run inside directory Dino game:
 
     python3 dinogame.py
+
+How to shot Bird?
+Press:
+
+    x
+
+Or push on left button mause in the display
+
+    mouse [left button]
