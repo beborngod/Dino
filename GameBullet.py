@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-import pygame
-
 
 class GameBullet:
     def __init__(self, display, x, y, speed=8):
