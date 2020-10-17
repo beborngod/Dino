@@ -19,6 +19,4 @@ Press:
 
     x
 
-Or push on left button mause in the display
-
-    mouse [left button]
+    mouse [left button]     
