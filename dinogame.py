@@ -268,6 +268,8 @@ class Dino:
 
         all_birds = [GameBird(self.__display, -80, self.__bird_image) for x in range(2)]
 
+        bird_bullets = []
+
         while self.game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -333,37 +335,67 @@ class Dino:
             if self.checkCollision(self.cactuses):
                 pygame.mixer.music.pause()
                 self.game = False
+                self.__rubys=0
                 pygame.mixer.music.load('Sounds/Big_Slinker.ogg')
                 pygame.mixer.music.set_volume(30)
                 pygame.mixer.music.play(-1)
 
-            self.drawBird(all_birds)
+            self.drawBird(all_birds,bird_bullets)
+
             self.checkBirdsDamage(all_mouse_bullets,all_birds)
             self.checkBirdsDamage(all_button_bullets,all_birds)
+
+            if self.checkDinoDamage(bird_bullets) == False:
+                pygame.mixer.music.pause()
+                self.game = False
+                self.__rubys=0
+                pygame.mixer.music.load('Sounds/Big_Slinker.ogg')
+                pygame.mixer.music.set_volume(30)
+                pygame.mixer.music.play(-1)
+
 
             self.showImageItem(20, 20, self.__health_images, self.__health)
             self.showImageItem(20, 60, self.__ruby_images, self.__rubys)
 
-            pygame.display.update()
+            pygame.display.update()                   
             self.__clock.tick(60)
 
         return self.gameOver()
 
-    def drawBird(self, birds: list):
+    def drawBird(self, birds: GameBird,bullets):
         for bird in birds:
             action = bird.draw()
             if action == 1:
                 bird.comeBird()
             elif action == 2:
                 bird.hide()
+            elif self.__scores >200:
+                bird.shoot(bullets,self.__USER_X,self.__USER_Y,self.__USER_WIDTH,self.__USER_HEIGHT,self.__DISPLAY_WIDHT,self.__bullet_image,self.__bullet_sound)
+
 
     def checkBirdsDamage(self, bullets, birds):
         for bird in birds:
             for bullet in bullets:
-                if bird.checkDamage(bullet):
-                    self.__scores+=20
-                
-            
+                if bird.checkDamage(bullet):    
+                   self.__scores+=20
+
+    def checkDamage(self, bullet):
+        if self.__USER_X <= bullet.x <= self.__USER_X+self.__USER_WIDTH:
+            if self.__USER_Y <= bullet.y <= self.__USER_Y+self.__USER_HEIGHT:
+                return True
+            else:
+                return False
+
+    def checkDinoDamage(self, bullets):
+        for bullet in bullets:
+            if self.checkDamage(bullet):    
+                self.__health -= 1
+                if self.__health == 0:
+                    pygame.mixer.Sound.play(self.__crash_song)
+                    return False
+                else:
+                    pygame.mixer.Sound.play(self.__fall_sound)
+                    return True
 
     def jump(self):
         if self.__jump_counter >= -30.0:
