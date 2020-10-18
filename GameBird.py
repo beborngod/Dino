@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
+from GameBullet import GameBullet
 from random import randrange
+import pygame
 
 
 class GameBird:
@@ -18,6 +20,7 @@ class GameBird:
         self.cooldown_hide = 0
         self.come = True
         self.go_away = False
+        self.cooldown_shot = 0
 
     def draw(self):
         if self.image_count == 30:
@@ -56,7 +59,24 @@ class GameBird:
             self.cooldown_hide = 100
 
     def checkDamage(self, bullet):
-        if self.x <= bullet.x <= self.x+self.width:
-            if self.y <= bullet.y <= self.y+self.height:
-                self.y=-100
-                return True
+        if self.y>0:
+            if self.x <= bullet.x <= self.x+self.width:
+                if self.y <= bullet.y <= self.y+self.height:
+                    self.y = -100
+                    return True
+
+    def shoot(self,bullets: list, USER_X,USER_Y, USER_WIDTH,USER_HEIGHT,DISPLAY_WIDTH,image,shoot_song=None):
+        if not self.cooldown_shot:
+            pygame.mixer.Sound.play(shoot_song)
+
+            new_bullet = GameBullet(self.display, self.x, self.y)
+            new_bullet.findPath(USER_X+USER_WIDTH//2,USER_Y+USER_HEIGHT//2)
+
+            bullets.append(new_bullet)
+            self.cooldown_shot = 200
+        else:
+            self.cooldown_shot-=1
+
+        for bullet in bullets:
+            if not bullet.moveTo(DISPLAY_WIDTH,image,reverse=True):
+                bullets.remove(bullet)
