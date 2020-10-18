@@ -34,11 +34,18 @@ class GameBullet:
             delta_y = dest_y - self.y
             self.speed_y = -(delta_y / count_up)
 
-    def moveTo(self, DISPLAY_WIDTH, image):
-        self.y -= self.speed_y
-        self.x += self.speed_x
+    def moveTo(self, DISPLAY_WIDTH, image,reverse=False):
+        if not reverse:
+            self.x += self.speed_x
+            self.y -= self.speed_y
+        else:
+            self.x -= self.speed_x
+            self.y += self.speed_y
 
-        if self.x <= DISPLAY_WIDTH and self.y>=0:
+        if self.x <= DISPLAY_WIDTH and not reverse:
+            self.display.blit(image, (self.x, self.y))
+            return True
+        elif self.x>=0 and reverse:
             self.display.blit(image, (self.x, self.y))
             return True
         else:
